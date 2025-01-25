@@ -114,10 +114,10 @@ module cv32e40s_lsu_response_filter
   ///////////////////////////////////////////
 
   assign core_count_up   = core_trans_accepted;
-  assign core_count_down = resp_valid_o;
-
+  assign core_count_down = resp_valid_o && (core_cnt_q > 2'b00); // check to make sure we aren't going out of bounds;
+                                                                 //     checks for count_up are performed elsewhere
   assign bus_count_up    = bus_trans_accepted;
-  assign bus_count_down  = resp_valid_i;
+  assign bus_count_down  = resp_valid_i && (bus_cnt_q > 2'b00);
 
   always_comb begin
     core_next_cnt = core_cnt_q;

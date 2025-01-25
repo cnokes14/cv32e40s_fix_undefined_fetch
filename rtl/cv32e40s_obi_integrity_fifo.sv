@@ -94,8 +94,10 @@ module cv32e40s_obi_integrity_fifo import cv32e40s_pkg::*;
   // Outstanding transactions counter
   // Used for tracking parity errors and integrity attribute
   /////////////////////////////////////////////////////////////
-  assign count_up = obi_req_i && obi_gnt_i;  // Increment upon accepted transfer request
-  assign count_down = obi_rvalid_i;                       // Decrement upon accepted transfer response
+  assign count_up = obi_req_i && obi_gnt_i &&                       // Increment upon accepted transfer request
+                        (count_down || cnt_q != MAX_OUTSTANDING);   // Handle overflow; counter either needs to not change or stay < 3 
+  assign count_down = obi_rvalid_i && cnt_q != 2'b00 &&             // Decrement upon accepted transfer response
+                        (count_down || cnt_q != MAX_OUTSTANDING);   // Handle overflow; counter either needs to not change or stay > 0
 
   always_comb begin
     case ({count_up, count_down})
