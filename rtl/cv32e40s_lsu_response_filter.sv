@@ -82,8 +82,8 @@ module cv32e40s_lsu_response_filter
   logic                  core_resp_is_bufferable;
 
   // Shift register containing bufferable cofiguration of outstanding transfers
-  outstanding_t [DEPTH:0]        outstanding_q; // Using 1-DEPTH entries for outstanding xfers, index 0 is tied low
-  outstanding_t [DEPTH:0]        outstanding_next;
+  outstanding_t [DEPTH+1:0]        outstanding_q; // Using 1-DEPTH entries for outstanding xfers, index 0 is tied low
+  outstanding_t [DEPTH+1:0]        outstanding_next;
 
   assign busy_o              = ( bus_cnt_q != '0) || valid_i;
 
@@ -114,10 +114,10 @@ module cv32e40s_lsu_response_filter
   ///////////////////////////////////////////
 
   assign core_count_up   = core_trans_accepted;
-  assign core_count_down = resp_valid_o && (core_cnt_q > 2'b00); // check to make sure we aren't going out of bounds;
-                                                                 //     checks for count_up are performed elsewhere
+  assign core_count_down = resp_valid_o;
+
   assign bus_count_up    = bus_trans_accepted;
-  assign bus_count_down  = resp_valid_i && (bus_cnt_q > 2'b00);
+  assign bus_count_down  = resp_valid_i;
 
   always_comb begin
     core_next_cnt = core_cnt_q;

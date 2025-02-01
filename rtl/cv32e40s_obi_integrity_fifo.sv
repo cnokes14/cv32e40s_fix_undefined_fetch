@@ -74,7 +74,7 @@ module cv32e40s_obi_integrity_fifo import cv32e40s_pkg::*;
 
   // FIFO is 1 bit deeper than the maximum value of bus_cnt_i
   // Index 0 is tied low to enable direct use of bus_cnt_i to pick correct FIFO index.
-  fifo_t [MAX_OUTSTANDING:0] fifo_q;
+  fifo_t [MAX_OUTSTANDING+1:0] fifo_q;
   fifo_t fifo_input;
 
   // Parity and rchk error signals
@@ -94,10 +94,8 @@ module cv32e40s_obi_integrity_fifo import cv32e40s_pkg::*;
   // Outstanding transactions counter
   // Used for tracking parity errors and integrity attribute
   /////////////////////////////////////////////////////////////
-  assign count_up = obi_req_i && obi_gnt_i &&                       // Increment upon accepted transfer request
-                        (count_down || cnt_q != MAX_OUTSTANDING);   // Handle overflow; counter either needs to not change or stay < 3 
-  assign count_down = obi_rvalid_i && cnt_q != 2'b00 &&             // Decrement upon accepted transfer response
-                        (count_down || cnt_q != MAX_OUTSTANDING);   // Handle overflow; counter either needs to not change or stay > 0
+  assign count_up = obi_req_i && obi_gnt_i;  // Increment upon accepted transfer request
+  assign count_down = obi_rvalid_i;                       // Decrement upon accepted transfer response
 
   always_comb begin
     case ({count_up, count_down})
